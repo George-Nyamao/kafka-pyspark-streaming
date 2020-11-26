@@ -1,0 +1,49 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, from_json
+from pyspark.sql.types import (StructField,StringType,IntegerType,DoubleType,StructType)
+
+topic = "mykafkapp"
+servers=['localhost:9092']
+
+if __name__ == "__main__":
+    print("PySpark Structured Streaming with Kafka Application Started ...")
+
+    spark = SparkSession \
+        .builder \
+        .appName("PySpark Structured Streaming with Kafka Demo") \
+        .master("local[*]") \
+        .config("spark.jars","/home/morara/Downloads/JarsAndTars/spark-sql-kafka-0-10_2.12-3.0.0.jar") \
+        .config("spark.jars","/home/morara/Downloads/JarsAndTars/kafka-clients-2.4.1.jar")\
+        .getOrCreate()
+
+    spark.sparkContext.setLogLevel("WARN")
+
+    msft_df = spark\
+            .readStream\
+            .format("kafka")\
+            .option("kafka.bootstrap.servers",servers)\
+            .option("subscribe",topic)\
+            .option("startingOffsets","earliest")\
+            .load()
+
+    msft_df.printSchema()
+
+    msft_df1 = msft_df.selectExpr("CAST(value AS STRING)")
+
+    msft_schema = StructType()\
+                .add("Date", StringType())\
+                .add("open", DoubleType())\
+                .add("high", DoubleType())\
+                .add("low", DoubleType())\
+                .add("close", DoubleType())\
+                .add("volume", IntegerType())
+
+    msft_df2 = msft_df1.select(from_json(col("value"), msft_schema).alias("msft_stock")).select("msft_stock.*")
+    
+    msft_df2.printSchema()
+
+    msft_df2.writeStream\
+        .format("console")\
+        .outputMode("append")\
+        .start()\
+        .awaitTermination()

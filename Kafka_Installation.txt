@@ -1,0 +1,17 @@
+1. $sudo apt-get update
+
+2. $wget https://downloads.apache.org/kafka/2.4.1/kafka_2.11-2.4.1.tgz
+
+3. Extract the folder and move it to /usr/local
+
+4. bin/zookeeper-server-start.sh config/zookeeper.properties
+
+5. bin/kafka-server-start.sh config/server.properties 
+
+6. bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic mykafkapp
+
+7. bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+8. bin/kafka-console-producer.sh --broker-list localhost:9092 --topic mykafkapp
+
+9. bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic mykafkapp --from-beginning
