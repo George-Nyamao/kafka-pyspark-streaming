@@ -12,7 +12,7 @@ os.environ["SPARK_HOME"] = "/usr/local/spark-3.0.1"
 spark_sql_kafka = "/usr/local/spark-3.0.1/jars/spark-sql-kafka-0-10_2.12-3.0.1.jar"
 kafka_clients = "/usr/local/spark-3.0.1/jars/kafka-clients-2.6.0.jar"
 
-kafka_topic_name = "capstone20"
+kafka_topic_name = "capstone2"
 kafka_bootstrap_servers = 'localhost:9092'
 
 if __name__ == "__main__":
@@ -60,9 +60,9 @@ if __name__ == "__main__":
     # Applying the schema
     stock_df1 = stock_df\
         .select(from_json(f.col("value"), stock_schema)\
-        .alias("apple_stock"), "timestamp")
+        .alias("wmt_stock"), "timestamp")
 
-    stock_df2 = stock_df1.select("apple_stock.*", "timestamp")
+    stock_df2 = stock_df1.select("wmt_stock.*", "timestamp")
     print('Printing the schema of stock_df2:')
     stock_df2.printSchema()
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     #Function to write table to hive
     def handle_hive(df, batch_id):
-        df.write.saveAsTable(name='stocks.applestock', format='hive', mode='append')
+        df.write.saveAsTable(name='stocks.wmtstock', format='hive', mode='append')
 
     #Write to console
     query1 = stock_df2\
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     def handle_mysql(df, batch_id):
         df.write.format("jdbc").mode("append") \
             .option("url", "jdbc:mysql://localhost/stocks?useSSL=false") \
-            .option("dbtable", "applestock") \
+            .option("dbtable", "wmtstock") \
             .option("user", "morara") \
             .option("password", "d3barl") \
             .save()
