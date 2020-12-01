@@ -2,13 +2,15 @@ from alpha_vantage.timeseries import TimeSeries
 from kafka import KafkaProducer
 import time
 from json import dumps
+from key import api_key
 
+api_key = api_key
 print("Kafka Producer Application Started ... ")
 kafka_producer_obj = KafkaProducer(bootstrap_servers='localhost:9092',
                    value_serializer=lambda x: dumps(x).encode('utf-8'))
 def processData(ticker):
-   ts = TimeSeries(key='FO2TBZIS1BRKDHTO', output_format='pandas')
-   intraData, meta_data=ts.get_intraday(symbol=ticker,interval='1min', outputsize='full')
+   ts = TimeSeries(key=api_key, output_format='pandas')
+   intraData, meta_data=ts.get_intraday(symbol=ticker,interval='5min', outputsize='compact')
    #Remove enumeration from col names
    for column in intraData.columns:
       intraData.rename({column: column.split('. ')[1]}, axis=1, inplace=True)
@@ -26,6 +28,6 @@ for ind in data.index:
     stock['close'] = data['close'][ind]
     stock['volume'] = data['volume'][ind]
     print("stock to be sent: ", stock)
-    kafka_producer_obj.send("capstone2", stock)
+    kafka_producer_obj.send("capstone3", stock)
     kafka_producer_obj.flush()
     time.sleep(1)

@@ -15,6 +15,7 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
     }
+    
 dag = DAG(
     'kafka-spark',
     default_args=default_args,
@@ -23,42 +24,44 @@ dag = DAG(
     schedule_interval=timedelta(days=1),)
     
 t1 = BashOperator(
-    task_id='start_zookeeper',
-    bash_command='sh /home/morara/start-zoo.sh',
+    task_id='drop_hive_mysql_tables',
+    depends_on_past=False,
+    bash_command='sh /home/morara/drophivemysqltables.sh ',
     dag=dag,
 )
 t2 = BashOperator(
-    task_id='start_kafka_server',
+    task_id='clear_topic',
     depends_on_past=False,
-    bash_command='sh /home/morara/start-kafka.sh ',
+    bash_command='sh /home/morara/empty_topic.sh ',
     dag=dag,
 )
 t3 = BashOperator(
-    task_id='start_hdfs',
+    task_id='delay_five_sec',
     depends_on_past=False,
-    bash_command='sh /home/morara/had.sh ',
+    bash_command='sleep 5 ',
     dag=dag,
 )
 t4 = BashOperator(
-    task_id='start_producer',
+    task_id='start_consumer',
     depends_on_past=False,
-    bash_command='/usr/bin/python3 /home/morara/capstone-producer.py ',
+    bash_command='sh /home/morara/cons_term.sh ',
     dag=dag,
 )
+
 t5 = BashOperator(
     task_id='start_producer',
     depends_on_past=False,
-    bash_command='/usr/bin/python3 /home/morara/capstone-consumer.py ',
+    bash_command='sh /home/morara/prod_term.sh ',
     dag=dag,
 )
 t6 = BashOperator(
     task_id='visualization',
     depends_on_past=False,
-    bash_command='/usr/bin/python3 /home/morara/Documents/BigData/Kafka/visualization.py ',
+    bash_command='python3 /home/morara/Documents/BigData/Kafka/visualization.py ',
     dag=dag,
 )
 
-(t1, t2, t3) >> t4 >> t5 >> t6
+[t1, t2] >> t3 >> t4 >> t5 >> t6
 
 #t1.set_downstream(t2)
 #t2.set_downstream(t3)

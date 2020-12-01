@@ -12,7 +12,7 @@ os.environ["SPARK_HOME"] = "/usr/local/spark-3.0.1"
 spark_sql_kafka = "/usr/local/spark-3.0.1/jars/spark-sql-kafka-0-10_2.12-3.0.1.jar"
 kafka_clients = "/usr/local/spark-3.0.1/jars/kafka-clients-2.6.0.jar"
 
-kafka_topic_name = "capstone2"
+kafka_topic_name = "capstone3"
 kafka_bootstrap_servers = 'localhost:9092'
 
 if __name__ == "__main__":
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         .format("kafka") \
         .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
         .option("subscribe", kafka_topic_name) \
-        .option("startingOffsets", "earliest") \
+        .option("startingOffsets", "latest") \
         .load()
     #
     print("Printing Schema of orders_df: ")
